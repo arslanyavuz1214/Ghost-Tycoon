@@ -30,7 +30,7 @@ h1 { margin: 0; color: #d7a5ff; }
 header p { margin: 6px 0 0; color: #b99bcf; }
 .stats {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
   padding: 12px;
   position: sticky;
@@ -44,8 +44,8 @@ header p { margin: 6px 0 0; color: #b99bcf; }
   border-radius: 12px;
   padding: 12px;
 }
-.stat { text-align: center; font-weight: bold; }
-.stat span { display: block; color: #fff; font-size: 19px; }
+.stat { text-align: center; font-weight: bold; min-width: 0; overflow: hidden; }
+.stat span { display: block; color: #fff; font-size: 19px; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
 main { max-width: 1000px; margin: auto; padding: 14px; }
 .world {
   min-height: 260px;
