@@ -45,7 +45,7 @@ header p { margin: 6px 0 0; color: #b99bcf; }
   padding: 12px;
 }
 .stat { text-align: center; font-weight: bold; min-width: 0; overflow: hidden; }
-.stat span { display: block; color: #fff; font-size: 19px; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
+.stat span { display: block; color: #fff; font-size: 19px; white-space: nowrap; overflow: hidden; font-variant-numeric: tabular-nums; }
 main { max-width: 1000px; margin: auto; padding: 14px; }
 .world {
   min-height: 260px;
@@ -239,6 +239,10 @@ function fmt(n) {
   if (n >= 1e6) return (n/1e6).toFixed(1)+" Mio.";
   return Math.floor(n).toLocaleString("de-DE");
 }
+function fmtStat(n) {
+  const value = fmt(n);
+  return value.length > 7 ? value.slice(0, 6) + "-" : value;
+}
 function addXP(amount) {
   state.xp += amount;
   while (state.xp >= state.level * 100) {
@@ -272,9 +276,9 @@ function buyUpgrade(i) {
     upgradeTypes[i].name+" verbessert!";
 }
 function render() {
-  document.getElementById("money").textContent = fmt(state.money);
+  document.getElementById("money").textContent = fmtStat(state.money);
   document.getElementById("level").textContent = state.level;
-  document.getElementById("income").textContent = fmt(income());
+  document.getElementById("income").textContent = fmtStat(income());
   document.getElementById("xp").textContent = fmt(state.xp);
   document.getElementById("nextxp").textContent = fmt(state.level*100);
   document.getElementById("xpfill").style.width =
