@@ -1,0 +1,347 @@
+
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Haunted Ghost Tycoon</title>
+<style>
+:root {
+  --bg: #0c0718;
+  --panel: #1a0d30;
+  --purple: #a855f7;
+  --light: #e9c8ff;
+  --border: #592c91;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  color: var(--light);
+  background: var(--bg);
+  font-family: system-ui, sans-serif;
+}
+header {
+  padding: 18px;
+  text-align: center;
+  background: #160924;
+  border-bottom: 2px solid var(--border);
+}
+h1 { margin: 0; color: #d7a5ff; }
+header p { margin: 6px 0 0; color: #b99bcf; }
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  padding: 12px;
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: #10091cf2;
+}
+.stat, .panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px;
+}
+.stat { text-align: center; font-weight: bold; }
+.stat span { display: block; color: #fff; font-size: 19px; }
+main { max-width: 1000px; margin: auto; padding: 14px; }
+.world {
+  min-height: 260px;
+  position: relative;
+  overflow: hidden;
+  border: 2px solid #47236f;
+  border-radius: 18px;
+  background:
+    radial-gradient(ellipse at 50% 30%, #39205c 0%, transparent 60%),
+    radial-gradient(ellipse at 20% 90%, #301641, transparent 50%),
+    #100b20;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+.moon {
+  position: absolute;
+  right: 28px;
+  top: 20px;
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background: #d9b5ff;
+  box-shadow: 0 0 35px #a855f7;
+}
+.stars { position: absolute; inset: 0; pointer-events: none; }
+.stars::before {
+  content: "✦  ·   ·      ✦       ·   ✦    ·      ✦";
+  color: #c49aff;
+  position: absolute;
+  top: 25px;
+  left: 10px;
+  word-spacing: 12px;
+}
+.ghost {
+  font-size: 76px;
+  filter: drop-shadow(0 0 20px #ad5cff);
+  animation: float 2s ease-in-out infinite;
+  z-index: 1;
+}
+@keyframes float {
+  50% { transform: translateY(-12px); }
+}
+.world h2 { margin: 0; z-index: 1; }
+.world p { z-index: 1; margin: 5px; }
+.xpbar {
+  height: 12px;
+  background: #090611;
+  border: 1px solid #653c91;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-top: 8px;
+}
+#xpfill {
+  height: 100%;
+  width: 0;
+  background: linear-gradient(90deg, #7825db, #e1a2ff);
+  transition: width .25s;
+}
+h2.section { font-size: 21px; margin: 22px 0 10px; }
+.buildings {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 12px;
+}
+.building {
+  background: linear-gradient(145deg, #201034, #110a20);
+  border: 1px solid #56307b;
+  border-radius: 14px;
+  padding: 14px;
+}
+.building .emoji { font-size: 38px; }
+.building h3 { margin: 4px 0; }
+.building p { color: #c3acd8; font-size: 14px; }
+button {
+  cursor: pointer;
+  border: 1px solid #bc83ff;
+  border-radius: 9px;
+  padding: 10px 12px;
+  width: 100%;
+  background: #7133ad;
+  color: white;
+  font-weight: bold;
+  font-size: 14px;
+}
+button:hover { background: #914bdb; }
+button:disabled { opacity: .45; cursor: not-allowed; }
+.secondary { background: #28133e; margin-top: 8px; }
+.panel { margin-top: 14px; }
+#message { color: #dcb4ff; min-height: 24px; }
+footer { text-align: center; padding: 24px; color: #8c72a3; }
+@media(max-width: 480px) {
+  .stats { gap: 5px; padding: 7px; }
+  .stat { padding: 9px 3px; font-size: 12px; }
+  .stat span { font-size: 16px; }
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>🎃 Haunted Ghost Tycoon</h1>
+  <p>Baue dein eigenes Geisterreich!</p>
+</header>
+
+<div class="stats">
+  <div class="stat">💰 Geld <span id="money">100</span></div>
+  <div class="stat">⭐ Level <span id="level">1</span></div>
+  <div class="stat">👻 Einkommen <span id="income">0</span>/s</div>
+</div>
+
+<main>
+  <section class="world">
+    <div class="moon"></div>
+    <div class="stars"></div>
+    <div class="ghost">👻</div>
+    <h2 id="ghostname">Kleiner Geist</h2>
+    <p>Dein Spukreich wartet auf dich ...</p>
+    <div style="width:80%;max-width:350px;text-align:center;margin:10px 0">
+      <div><span id="xp">0</span> / <span id="nextxp">100</span> XP</div>
+      <div class="xpbar"><div id="xpfill"></div></div>
+    </div>
+    <p id="levelmessage">Sammle Geld und werde mächtiger!</p>
+  </section>
+
+  <h2 class="section">🏚️ Baue dein Geisterreich</h2>
+  <div class="buildings" id="buildings"></div>
+
+  <h2 class="section">🔮 Geister-Upgrades</h2>
+  <div class="buildings" id="upgrades"></div>
+
+  <section class="panel">
+    <h2>📜 Spuk-Aufgaben</h2>
+    <p id="quest">Kaufe dein erstes Geisterhaus!</p>
+    <p id="message">Willkommen in deinem Geisterreich!</p>
+    <button class="secondary" onclick="saveGame(true)">💾 Spielstand speichern</button>
+    <button class="secondary" onclick="resetGame()">🗑️ Neu anfangen</button>
+  </section>
+</main>
+<footer>Ein kleines Halloween-Abenteuer · Kostenlos spielbar</footer>
+
+<script>
+const buildingTypes = [
+  {name:"Geisterhaus", icon:"🏚️", base:50, income:1, xp:10},
+  {name:"Kürbisfeld", icon:"🎃", base:150, income:4, xp:20},
+  {name:"Zauberkessel", icon:"🧪", base:400, income:10, xp:35},
+  {name:"Spukfriedhof", icon:"⚰️", base:1000, income:25, xp:60},
+  {name:"Beschwörungsturm", icon:"🔮", base:3000, income:70, xp:100},
+  {name:"Geisterschloss", icon:"🏰", base:10000, income:250, xp:200}
+];
+
+const upgradeTypes = [
+  {name:"Geistermagie", icon:"✨", base:100, desc:"+1 Einkommen pro Gebäude-Level"},
+  {name:"Goldene Kürbisse", icon:"🎃", base:250, desc:"+50 % Einkommen"},
+  {name:"Dunkle Aura", icon:"🌙", base:500, desc:"+100 % Einkommen"}
+];
+
+const initialState = () => ({
+  money:100, level:1, xp:0, buildings:Array(6).fill(0),
+  upgrades:Array(3).fill(0), lastTime:Date.now()
+});
+
+let state;
+try {
+  state = {...initialState(), ...JSON.parse(localStorage.getItem("ghostTycoonSave"))};
+} catch(e) {
+  state = initialState();
+}
+if (!Array.isArray(state.buildings) || state.buildings.length !== 6 ||
+    !Array.isArray(state.upgrades) || state.upgrades.length !== 3) {
+  state = initialState();
+}
+
+function cost(i) {
+  return Math.floor(buildingTypes[i].base * Math.pow(1.32, state.buildings[i]));
+}
+function upgradeCost(i) {
+  return Math.floor(upgradeTypes[i].base * Math.pow(2.2, state.upgrades[i]));
+}
+function income() {
+  let total = 0;
+  buildingTypes.forEach((b,i) => total += b.income * state.buildings[i]);
+  total *= 1 + state.upgrades[1] * 0.5;
+  total *= Math.pow(2, state.upgrades[2]);
+  total += state.upgrades[0] * state.buildings.reduce((a,b) => a+b,0);
+  return total;
+}
+function fmt(n) {
+  if (n >= 1e9) return (n/1e9).toFixed(1)+" Mrd.";
+  if (n >= 1e6) return (n/1e6).toFixed(1)+" Mio.";
+  return Math.floor(n).toLocaleString("de-DE");
+}
+function addXP(amount) {
+  state.xp += amount;
+  while (state.xp >= state.level * 100) {
+    state.xp -= state.level * 100;
+    state.level++;
+    state.money += state.level * 50;
+    document.getElementById("message").textContent =
+      "🎉 Level Up! Du bist jetzt Level "+state.level+"! Bonus: "+state.level*50+" Münzen.";
+  }
+}
+function buyBuilding(i) {
+  const price = cost(i);
+  if (state.money < price) return;
+  state.money -= price;
+  state.buildings[i]++;
+  addXP(buildingTypes[i].xp);
+  render();
+  saveGame();
+  document.getElementById("message").textContent =
+    buildingTypes[i].name+" gekauft! Du verdienst jetzt mehr Geld.";
+}
+function buyUpgrade(i) {
+  const price = upgradeCost(i);
+  if (state.money < price) return;
+  state.money -= price;
+  state.upgrades[i]++;
+  addXP(25);
+  render();
+  saveGame();
+  document.getElementById("message").textContent =
+    upgradeTypes[i].name+" verbessert!";
+}
+function render() {
+  document.getElementById("money").textContent = fmt(state.money);
+  document.getElementById("level").textContent = state.level;
+  document.getElementById("income").textContent = fmt(income());
+  document.getElementById("xp").textContent = fmt(state.xp);
+  document.getElementById("nextxp").textContent = fmt(state.level*100);
+  document.getElementById("xpfill").style.width =
+    Math.min(100,state.xp/(state.level*100)*100)+"%";
+  document.getElementById("ghostname").textContent =
+    state.level >= 10 ? "👑 Geisterkönig" :
+    state.level >= 5 ? "🔮 Mächtiger Geist" : "Kleiner Geist";
+  document.getElementById("levelmessage").textContent =
+    "Level "+state.level+" · "+(state.level*100-state.xp)+" XP bis zum nächsten Level";
+
+  document.getElementById("buildings").innerHTML = buildingTypes.map((b,i) => `
+    <article class="building">
+      <div class="emoji">${b.icon}</div>
+      <h3>${b.name}</h3>
+      <p>Besitzt: ${state.buildings[i]}</p>
+      <p>Verdienst: +${fmt(b.income)} Münzen/s pro Gebäude</p>
+      <button onclick="buyBuilding(${i})" ${state.money<cost(i)?"disabled":""}>
+        Kaufen · 💰 ${fmt(cost(i))}
+      </button>
+    </article>
+  `).join("");
+
+  document.getElementById("upgrades").innerHTML = upgradeTypes.map((u,i) => `
+    <article class="building">
+      <div class="emoji">${u.icon}</div>
+      <h3>${u.name} · Stufe ${state.upgrades[i]}</h3>
+      <p>${u.desc}</p>
+      <button onclick="buyUpgrade(${i})" ${state.money<upgradeCost(i)?"disabled":""}>
+        Verbessern · 💰 ${fmt(upgradeCost(i))}
+      </button>
+    </article>
+  `).join("");
+
+  const count = state.buildings.reduce((a,b)=>a+b,0);
+  document.getElementById("quest").textContent =
+    count === 0 ? "Kaufe dein erstes Geisterhaus!" :
+    count < 5 ? `Baue 5 Gebäude! Fortschritt: ${count}/5` :
+    state.level < 5 ? `Erreiche Level 5! Aktuell: Level ${state.level}` :
+    "Geschafft! Du bist ein wahrer Geister-Tycoon!";
+}
+function saveGame(showMessage=false) {
+  state.lastTime = Date.now();
+  localStorage.setItem("ghostTycoonSave", JSON.stringify(state));
+  if (showMessage) document.getElementById("message").textContent =
+    "Spielstand gespeichert!";
+}
+function resetGame() {
+  if (!confirm("Wirklich ganz von vorne anfangen? Dein Spielstand wird gelöscht.")) return;
+  state = initialState();
+  saveGame();
+  render();
+  document.getElementById("message").textContent = "Ein neues Geisterreich beginnt!";
+}
+
+const elapsed = Math.min(8*60*60, Math.max(0,(Date.now()-(state.lastTime||Date.now()))/1000));
+if (elapsed > 5) {
+  state.money += income() * elapsed;
+  document.getElementById("message").textContent =
+    "Willkommen zurück! Du hast "+fmt(income()*elapsed)+" Münzen verdient.";
+}
+render();
+setInterval(() => {
+  state.money += income();
+  render();
+}, 1000);
+setInterval(() => saveGame(), 5000);
+window.addEventListener("beforeunload", () => saveGame());
+</script>
+</body>
+</html>
